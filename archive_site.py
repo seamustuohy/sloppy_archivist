@@ -29,10 +29,9 @@ import logging
 logging.basicConfig(level=logging.ERROR)
 log = logging.getLogger(__name__)
 
-
 class Url(scrapy.Item):
     url = scrapy.Field()
-    archive = scrapy.Field()
+    terms = scrapy.Field()
 
 
 class ArchiveSpider(CrawlSpider):
@@ -40,7 +39,9 @@ class ArchiveSpider(CrawlSpider):
     rules = (Rule(LinkExtractor(allow=()), callback='parse_page', follow=True),)
     custom_settings = {
         "DOWNLOAD_DELAY": 3,
-        "CONCURRENT_REQUESTS_PER_DOMAIN": 1
+        "CONCURRENT_REQUESTS_PER_DOMAIN": 1,
+        "FEED_FORMAT": "json",
+        "FEED_URI" : "taxonomy.json"
     }
 
     def __init__(self, *args, **kwargs):
@@ -54,21 +55,10 @@ class ArchiveSpider(CrawlSpider):
         self.allowed_domains = [parsed_url.netloc]
 
     def parse_page(self, response):
-        archive = self.archive_link(response.url)
-        url = Url(url=response.url, archive=archive)
+        taxonomy_terms = self.get_taxonomy_terms(response)
+        url = Url(url=response.url, terms=taxonomy_terms)
         yield url
 
-    def archive_link(self, link):
-        try:
-            log.debug("Archiving {0} link".format(link))
-            link_archive = Archive(link)
-            log.debug("submitting link {0}".format(link))
-            link_archive.submit()
-            log.debug("requesting archived link {0}".format(link))
-            archive = link_archive.request()
-            return archive
-        except (HTTPError,
-                RobotAccessControlException,
-                MissingArchiveError,
-                UnknownArchiveException):
-            return None
+    def get_taxonomy_terms(response):
+        terms = response.xpath("//a[@typeof='skos:Concept']/text()").extract()
+        return terms

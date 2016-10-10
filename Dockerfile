@@ -27,6 +27,7 @@ RUN pip3 install Scrapy --upgrade
 
 RUN git clone https://github.com/seamustuohy/DocOps.git && \
     cd DocOps && \
+    git checkout taxonomy && \
     python3 setup.py install
 
 # run the application
