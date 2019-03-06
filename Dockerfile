@@ -24,6 +24,7 @@ RUN apt-get install -y git \
 RUN pip3 install setuptools --upgrade
 RUN pip3 install wheel --upgrade
 RUN pip3 install Scrapy --upgrade
+RUN pip3 install requests --upgrade
 
 RUN git clone https://github.com/seamustuohy/DocOps.git && \
     cd DocOps && \
