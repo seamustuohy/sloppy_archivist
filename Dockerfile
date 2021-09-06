@@ -25,11 +25,14 @@ RUN pip3 install setuptools --upgrade
 RUN pip3 install wheel --upgrade
 RUN pip3 install Scrapy --upgrade
 RUN pip3 install requests --upgrade
+RUN pip3 install wayback --upgrade
 
-RUN git clone https://github.com/seamustuohy/DocOps.git && \
-    cd DocOps && \
+WORKDIR /home
+RUN git clone https://github.com/pastpages/savepagenow && \
+    cd savepagenow && \
     python3 setup.py install
+
 
 # run the application
 # ENTRYPOINT ["/usr/local/bin/scrapy"]
-CMD ["scrapy", "runspider", "/etc/spider/archive_site.py", "-o", "/etc/spider/items.json"]
+CMD ["scrapy", "runspider", "/etc/spider/archive_site.py"]
